@@ -10,3 +10,15 @@ services:
       - 15672:15672
   # end::messaging[]
   # tag::adminer[]
+  # end::adminer[]
+  # tag::front_end[]
+  front_end:
+      build: ./frontend
+      ports:
+          - 3000:3000
+      environment:
+          RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+          RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      volumes:
+        - "./frontend/:/frontend/"
+    # end::front_end[]
