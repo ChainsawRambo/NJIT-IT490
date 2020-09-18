@@ -1,7 +1,7 @@
 FROM node:12
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /usr/app
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
@@ -13,7 +13,7 @@ RUN npm install
 # RUN npm ci --only=production
 
 # Bundle app source
-COPY . .
+COPY ./frontend .
 
 EXPOSE 3000
 CMD [ "node", "/frontend/app.js" ]
