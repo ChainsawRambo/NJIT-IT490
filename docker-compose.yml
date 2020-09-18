@@ -29,5 +29,19 @@ services:
     ports:
       - 8080:8080
 
+
+    # tag::front_end[]
+  front_end:
+    build: ./frontend
+    command: npm start
+    ports:
+      - 3000:3000
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+    volumes:
+      - "./frontend:/usr/app/"
+  # end::front_end[]
+
 volumes:
   data-volume:
