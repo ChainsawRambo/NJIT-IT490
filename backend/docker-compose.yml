@@ -47,7 +47,7 @@ services:
 
   # tag::back_end[]
   back-end:
-    build: .
+    build: ./BACKEND
     environment:
       - NODE_ENV=development
       - MSG_USER=${MSG_USER}
