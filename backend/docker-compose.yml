@@ -11,7 +11,7 @@ services:
   # end::messaging[]
 
   db:
-    build: ./DB
+    build: ../DB
     restart: always
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -33,7 +33,7 @@ services:
 
     # tag::front_end[]
   front_end:
-    build: ./FRONTEND
+    build: ../FRONTEND
     command: npm start
     ports:
       - 3000:3000
@@ -47,7 +47,7 @@ services:
 
   # tag::back_end[]
   back-end:
-    build: ./BACKEND
+    build: .
     environment:
       - NODE_ENV=development
       - MSG_USER=${MSG_USER}
