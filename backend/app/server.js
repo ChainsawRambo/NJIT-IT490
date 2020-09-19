@@ -10,7 +10,7 @@ const queue = 'requests';
 const messaging_url = `amqp://${messaging_user}:${messaging_pass}@${messaging_host}`;
 const amqp = require('amqplib/callback_api');
 
-//Send talk with message
+//Talk with message
 function send_response(channel, msg, response) {
     channel.sendToQueue(msg.properties.replyTo, Buffer.from(JSON.stringify(response)), {
         correlationId: msg.properties.correlationId
