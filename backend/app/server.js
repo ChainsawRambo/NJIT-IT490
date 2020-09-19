@@ -18,7 +18,7 @@ function send_response(channel, msg, response) {
     channel.ack(msg);
 }
 
-// Communications with Message
+// Communications
 amqp.connect(messaging_url, function(error0, connection) {
     if (error0) {
         throw error0;
@@ -37,10 +37,17 @@ amqp.connect(messaging_url, function(error0, connection) {
             var received_json = JSON.parse(msg.content);
             var action = received_json['action'];
             switch (action) {
+                //Communicating with message
                 case 'ECHO':
                     data = received_json['data'];
                     console.log(`Echoing ${data}`);
                     send_response(channel, msg, {'status': 'OK', 'data': data});
+                    break;
+
+                // Error messages
+                default:
+                    console.log('Unknown action');
+                    send_response(channel, msg, {'status': 'ERROR', 'message': 'Unknown action'});
                     break;
             }
         });
