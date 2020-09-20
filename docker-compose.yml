@@ -10,6 +10,7 @@ services:
       - 15672:15672
   # end::messaging[]
 
+  # tag::DB[]
   db:
     build: ./DB
     restart: always
@@ -20,6 +21,7 @@ services:
       - data-volume:/var/lib/postgresql/data
     ports:
       - 5432:5432
+  # tag::DB[]
 
   # tag::adminer[]
   adminer:
@@ -31,7 +33,7 @@ services:
       - 8080:8080
 
 
-    # tag::front_end[]
+  # tag::front_end[]
   front_end:
     build: ./FRONTEND
     command: npm start
@@ -47,7 +49,7 @@ services:
 
   # tag::back_end[]
   back-end:
-    build: .
+    build: ./BACKEND
     environment:
       - NODE_ENV=development
       - MSG_USER=${MSG_USER}
