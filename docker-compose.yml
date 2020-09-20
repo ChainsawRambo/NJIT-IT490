@@ -31,18 +31,14 @@ services:
       - 8080:8080
 
 
-    # tag::front_end[]
+  # tag::front_end[]
   front_end:
-    build: ./FRONTEND
-    command: npm start
+    build: ./frontend
     ports:
       - 3000:3000
-      - 9229:9229
-    environment:
-      - CHOKIDAR_USEPOLLING=true
     volumes:
-      - ".FRONTEND:/app"
-      - ".FRONTEND/node_modules"
+      - ./frontend:/app
+      - /app/node_modules
   # end::front_end[]
 
 volumes:
