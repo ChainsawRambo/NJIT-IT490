@@ -7,7 +7,7 @@ import logging
 time.sleep(20)
 
 #Back End Code
-logging.info("Back End Is Running Now")
+print("Back End Is Running Now")
 #    credentials = pika.PlainCredentials('guest','guest')
 #    connection = pika.BlockingConnection(
 #       pika.ConnectionParameters(
