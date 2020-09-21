@@ -45,14 +45,7 @@ services:
 
   # tag::back_end[]
   back-end:
-    build: ./BACKEND
-    environment:
-      - NODE_ENV=development
-      - MSG_USER=${MSG_USER}
-      - MSG_PASS=${MSG_PASS}
-      - DB_USER=${DB_USER}
-      - DB_PASS=${DB_PASS}
-      - DB_DATABASE=${DB_DATABASE}
+    build: ./backend
   # end::back_end[]
 volumes:
   data-volume:
