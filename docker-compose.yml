@@ -45,7 +45,7 @@ services:
 
   # tag::back_end[]
   back-end:
-    build: backend/
+    build: ./backend
   # end::back_end[]
 volumes:
   data-volume:
