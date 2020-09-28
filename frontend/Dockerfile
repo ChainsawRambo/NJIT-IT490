@@ -1,7 +1,6 @@
-FROM node:13.12.0-alpine
-WORKDIR /app
-COPY package.json /app
-RUN npm install
+FROM python
 COPY . /app
-CMD node app.js
-EXPOSE 3000
+WORKDIR /app
+RUN pip install -r requirements.txt
+ENV FLASK_APP=app.py
+CMD ["flask", "run", "--host=0.0.0.0"]
