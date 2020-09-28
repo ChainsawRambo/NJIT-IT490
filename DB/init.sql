@@ -1,4 +1,4 @@
-CREATE DATABASE Users;
+CREATE DATABASE users;
 
 CREATE TABLE usersinfo
 (
