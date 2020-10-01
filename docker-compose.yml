@@ -34,8 +34,6 @@ services:
     build: ./frontend
     ports:
       - 5000:5000
-    volumes:
-      - ./frontend:/app
   # end::front_end[]
 
   # tag::back_end[]
