@@ -19,12 +19,12 @@ channel.queue_declare(queue='task_queue', durable=True)
 print(' [*] Connecting to the database...')
 postgres_user = os.environ['DB_USER']
 postgres_password = os.environ['POSTGRES_PASSWORD']
-        conn = psycopg2.connect(
-            host='db',
-            database='example',
-            user=postgres_user,
-            password=postgres_password
-        )
+conn = psycopg2.connect(
+    host='db',
+    database='example',
+    user=postgres_user,
+    password=postgres_password
+)
 
 print(' [*] Waiting for DB queries.')
 print(' [*] Waiting for messages.')
