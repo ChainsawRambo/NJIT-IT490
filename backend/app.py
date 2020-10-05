@@ -1,5 +1,6 @@
 import pika
 import time
+import os
 import psycopg2
 
 #Sleep time for BE to connect
