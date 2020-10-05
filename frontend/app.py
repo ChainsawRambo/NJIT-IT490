@@ -1,12 +1,16 @@
-from flask import Flask
+from flask import Flask, render_template
 import pika
 
 app = Flask(__name__)
 
 
 @app.route('/')
-def index():
-    return 'OK'
+def loginpage():
+    return render_template('login.html')
+
+@app.route('/register')
+def registerpage():
+    return render_template('register.html')
 
 
 @app.route('/add-job/<cmd>')
