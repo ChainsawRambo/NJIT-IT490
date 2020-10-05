@@ -10,7 +10,7 @@ messaging:
       - 15672:15672
 	  
 '''
- You have to specify that you're using the management version as well as specifying the forward port you are using in this  ase port 15672.
+ You have to specify that you're using the management version as well as specifying the forward port you are using in this case port 15672.
  
  ## How do I get to the Web Interface?
  
