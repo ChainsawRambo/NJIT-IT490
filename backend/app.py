@@ -3,12 +3,12 @@ import time
 import os
 import psycopg2
 
-#Sleep time for BE to connect
+# Sleep time for BE to connect
 sleepTime = 20
 print(' [*] Sleeping for ', sleepTime, ' seconds.')
 time.sleep(sleepTime)
 
-#Connect with Messaging
+# Connect with Messaging
 print(' [*] Connecting to server ...')
 credentials = pika.PlainCredentials('guest', 'guest')
 connection = pika.BlockingConnection(
@@ -16,13 +16,13 @@ connection = pika.BlockingConnection(
 channel = connection.channel()
 channel.queue_declare(queue='task_queue', durable=True)
 
-#Connect with DB
+# Connect with DB
 print(' [*] Connecting to the database...')
 postgres_user = os.environ['DB_USER']
-postgres_password = os.environ['POSTGRES_PASSWORD']
+postgres_password = os.environ['DB_PASS']
 conn = psycopg2.connect(
     host='db',
-    database='example',
+    database='it490',
     user=postgres_user,
     password=postgres_password
 )
@@ -31,7 +31,7 @@ print(' [*] Waiting for DB queries.')
 print(' [*] Waiting for messages.')
 
 
-#Talking with Messaging
+# Talking with Messaging
 def callback(ch, method, properties, body):
     print(" [x] Received %s" % body)
     cmd = body.decode()
