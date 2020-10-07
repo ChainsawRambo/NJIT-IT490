@@ -1,36 +1,109 @@
 import pika
+import psycopg2
+import os
 import time
-
-sleepTime = 20
-print(' [*] Sleeping for ', sleepTime, ' seconds.')
-time.sleep(sleepTime)
-
-print(' [*] Connecting to server ...')
-credentials = pika.PlainCredentials('guest', 'guest')
-connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host='messaging', credentials=credentials))
-channel = connection.channel()
-channel.queue_declare(queue='task_queue', durable=True)
-
-print(' [*] Waiting for messages.')
+import logging
+import json
 
 
-def callback(ch, method, properties, body):
-    print(" [x] Received %s" % body)
-    cmd = body.decode()
-
-    if cmd == 'hey':
-        print("hey there")
-    elif cmd == 'hello':
-        print("well hello there")
+def process_request(ch, method, properties, body):
+    """
+    Gets a request from the queue, acts on it, and returns a response to the
+    reply-to queue
+    """
+    request = json.loads(body)
+    if 'action' not in request:
+        response = {
+            'success': False,
+            'message': "Request does not have action"
+        }
     else:
-        print("sorry i did not understand ", body)
+        action = request['action']
+        if action == 'GETHASH':
+            data = request['data']
+            email = data['email']
+            logging.info(f"GETHASH request for {email} received")
+            curr.execute(
+                'SELECT hash FROM usersinfo WHERE email=%s;', (email,))
+            row = curr.fetchone()
+            if row == None:
+                response = {'success': False}
+            else:
+                response = {'success': True, 'hash': row[0]}
+        elif action == 'REGISTER':
+            data = request['data']
+            email = data['email']
+            hashed = data['hash']
+            logging.info(f"REGISTER request for {email} received")
+            curr.execute('SELECT * FROM usersinfo WHERE email=%s;', (email,))
+            if curr.fetchone() != None:
+                response = {'success': False, 'message': 'User already exists'}
+            else:
+                curr.execute(
+                    'INSERT INTO usersinfo VALUES (%s, %s);', (email, hashed))
+                conn.commit()
+                response = {'success': True}
+        else:
+            response = {'success': False, 'message': "Unknown action"}
+    logging.info(response)
+    ch.basic_publish(
+        exchange='',
+        routing_key=properties.reply_to,
+        body=json.dumps(response)
+    )
+# end::process_request[]
 
-    print(" [x] Done")
 
-    ch.basic_ack(delivery_tag=method.delivery_tag)
+logging.basicConfig(level=logging.INFO)
 
+# repeatedly try to connect to db and messaging, waiting up to 60s, doubling
+# backoff
+wait_time = 1
+while True:
+    logging.info(f"Waiting {wait_time}s...")
+    time.sleep(wait_time)
+    if wait_time < 60:
+        wait_time = wait_time * 2
+    else:
+        wait_time = 60
+    try:
+        logging.info("Connecting to the database...")
+        postgres_password = os.environ['POSTGRES_PASSWORD']
+        conn = psycopg2.connect(
+            host='db',
+            database='postgres',
+            user='it490',
+            password=postgres_password
+        )
 
-channel.basic_qos(prefetch_count=1)
-channel.basic_consume(queue='task_queue', on_message_callback=callback)
+        logging.info("Connecting to messaging service...")
+        credentials = pika.PlainCredentials(
+            os.environ['RABBITMQ_DEFAULT_USER'],
+            os.environ['RABBITMQ_DEFAULT_PASS']
+        )
+        connection = pika.BlockingConnection(
+            pika.ConnectionParameters(
+                host='messaging',
+                credentials=credentials
+            )
+        )
+
+        break
+    except psycopg2.OperationalError:
+        print(f"Unable to connect to database.")
+        continue
+    except pika.exceptions.AMQPConnectionError:
+        print("Unable to connect to messaging.")
+        continue
+curr = conn.cursor()
+channel = connection.channel()
+
+# create the request queue if it doesn't exist
+channel.queue_declare(queue='request')
+
+channel.basic_consume(queue='request', auto_ack=True,
+                      on_message_callback=process_request)
+
+# loops forever consuming from 'request' queue
+logging.info("Starting consumption...")
 channel.start_consuming()
