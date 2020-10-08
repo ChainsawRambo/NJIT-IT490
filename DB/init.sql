@@ -1,8 +1,8 @@
-CREATE DATABASE bartenderDB;
+CREATE DATABASE bartender;
 
 CREATE TABLE usersinfo
 (
-    user_id integer primary key,
+    id SERIAL,
     first_names varchar(50),
     last_name varchar(50) not null,
     email varchar(255) not null unique,
