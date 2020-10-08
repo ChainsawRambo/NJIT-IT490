@@ -1,7 +1,7 @@
 import pika
 import time
 import os
-import psycopg2-binary
+import psycopg2
 
 # Sleep time for BE to connect
 sleepTime = 20
@@ -20,15 +20,36 @@ channel.queue_declare(queue='task_queue', durable=True)
 print(' [*] Connecting to the database...')
 postgres_user = os.environ['DB_USER']
 postgres_password = os.environ['DB_PASS']
-conn = psycopg2.connect(
-    host='db',
-    database='it490',
-    user=postgres_user,
-    password=postgres_password
-)
 
-print(' [*] Waiting for DB queries.')
-print(' [*] Waiting for messages.')
+try:
+    conn = psycopg2.connect(
+        host='db',
+        database='it490',
+        user=postgres_user,
+        password=postgres_password
+    )
+
+    cursor = conn.cursor()
+    postgres_insert_query = """ INSERT INTO usersinfo (user_id, first_names, last_name, email, password, hash) VALUES (%s, %s, %s, %s, %s, %s)  """
+    record_to_insert = (5, 'Kamal', 'Youssef',
+                        'testemail2@gmail.com', 'password123', 'd3fmsdfsd3ksekfl')
+
+    cursor.execute(postgres_insert_query, record_to_insert)
+
+    conn.commit()
+    count = cursor.rowcount
+    print(count, "Record inserted successfully into usersinfo table")
+
+except (Exception, psycopg2.Error) as error:
+    if(connection):
+        print("Failed to insert record into usersinfo table", error)
+
+finally:
+    # closing database connection.
+    if(conn):
+        cursor.close()
+        conn.close()
+        print("PostgreSQL connection is closed")
 
 
 # Talking with Messaging

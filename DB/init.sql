@@ -1,4 +1,4 @@
-CREATE DATABASE users;
+CREATE DATABASE bartenderDB;
 
 CREATE TABLE usersinfo
 (
