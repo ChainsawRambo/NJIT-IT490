@@ -30,9 +30,9 @@ try:
     )
 
     cursor = conn.cursor()
-    postgres_insert_query = """ INSERT INTO usersinfo (user_id, first_names, last_name, email, password, hash) VALUES (%s, %s, %s, %s, %s, %s)  """
-    record_to_insert = (5, 'Kamal', 'Youssef',
-                        'testemail2@gmail.com', 'password123', 'd3fmsdfsd3ksekfl')
+    postgres_insert_query = """ INSERT INTO usersinfo (user_id, first_names, last_name, email, password, registration_date, hash) VALUES ( %s,%s, %s, %s, %s, CURRENT_TIMESTAMP, %s)  """
+    record_to_insert = ('98', 'Kamal', 'Youssef',
+                        'testemail4324343@gmail.com', 'password123', 'd3fmsdf21342343sd3ksekfl')
 
     cursor.execute(postgres_insert_query, record_to_insert)
 
