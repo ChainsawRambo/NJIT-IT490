@@ -34,10 +34,10 @@ services:
   front_end:
     build: ./frontend
     environment:
-            RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
-            RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
-            FLASK_ENV: development
-            FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      FLASK_ENV: development
+      FLASK_SECRET_KEY: ${FLASK_SECRET_KEY}
     ports:
       - 5000:5000
   # end::front_end[]
@@ -48,11 +48,10 @@ services:
     volumes:
       - ./backend:/app
     environment:
-      - PYTHONUNBUFFERED=1
-      - MSG_USER=${RABBITMQ_DEFAULT_USER}
-      - MSG_PASS=${RABBITMQ_DEFAULT_PASS}
-      - DB_USER=${POSTGRES_USER}
-      - DB_PASS=${POSTGRES_PASSWORD}
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASS: ${POSTGRES_PASSWORD}
   # end::back_end[]
 volumes:
   db-data:

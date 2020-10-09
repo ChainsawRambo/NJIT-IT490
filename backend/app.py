@@ -10,7 +10,8 @@ time.sleep(sleepTime)
 
 # Connect with Messaging
 print(' [*] Connecting to server ...')
-credentials = pika.PlainCredentials('guest', 'guest')
+credentials = pika.PlainCredentials(os.environ['RABBITMQ_DEFAULT_USER'],
+                                        os.environ['RABBITMQ_DEFAULT_PASS'])
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(host='messaging', credentials=credentials))
 channel = connection.channel()
