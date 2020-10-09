@@ -1,35 +1,31 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request, session
+from werkzeug.security import check_password_hash, generate_password_hash, gen_salt
 import pika
+import messaging
+import os
 
 app = Flask(__name__)
+app.secret_key = os.environ['FLASK_SECRET_KEY'] 
 
-
-@app.route('/')
+@app.route('/', methods=['GET','POST'])
 def loginpage():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        msg = messaging.Messaging()
+        msg.send('GETHASH', { 'username': username })
+        '''
+        response = msg.receive()
+        if response['success'] != True:
+            return "Login failed."
+        if check_password_hash(response['hash'], password):
+            session['email'] = email
+            return redirect('/')
+        else:
+            return "Login failed."
+        '''
     return render_template('login.html')
 
 @app.route('/register')
 def registerpage():
     return render_template('register.html')
-
-
-@app.route('/add-job/<cmd>')
-def add(cmd):
-    credentials = pika.PlainCredentials('guest', 'guest')
-    connection = pika.BlockingConnection(
-        pika.ConnectionParameters(host='messaging', credentials=credentials))
-    channel = connection.channel()
-    channel.queue_declare(queue='task_queue', durable=True)
-    channel.basic_publish(
-        exchange='',
-        routing_key='task_queue',
-        body=cmd,
-        properties=pika.BasicProperties(
-            delivery_mode=2,  # make message persistent
-        ))
-    connection.close()
-    return " [x] Sent: %s" % cmd
-
-
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')

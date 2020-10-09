@@ -56,8 +56,8 @@
         <img src="{{url_for('static', filename='cocktail.png')}}" alt="cocktail-image">
         <form class="form-signin" method="post">
           <h1>Sign in to Your Account</h1>
-          <input type="text" id="inputUsername" class="form-control" placeholder="Username" required>
-          <input type="password" id="inputPassword" class="form-control" placeholder="Password" required>
+          <input type="text" id="inputUsername" class="form-control" placeholder="Username" name="username" required>
+          <input type="password" id="inputPassword" class="form-control" placeholder="Password" name="password" required>
           <button class="btn btn-primary" type="submit">Sign in</button>
           <div class="createaccount">
             Don't have an account? <a href="/register">Register</a>
