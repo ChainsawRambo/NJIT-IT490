@@ -25,7 +25,7 @@ postgres_password = os.environ['DB_PASS']
 try:
     conn = psycopg2.connect(
         host='db',
-        database='it490',
+        database='bartender',
         user=postgres_user,
         password=postgres_password
     )

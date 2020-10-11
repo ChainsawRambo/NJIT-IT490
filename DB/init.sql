@@ -1,5 +1,5 @@
 CREATE DATABASE bartender;
-
+\c bartender
 CREATE TABLE usersinfo
 (
     id SERIAL,
