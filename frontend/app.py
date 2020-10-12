@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, session
-#from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.security import check_password_hash, generate_password_hash
 import pika
 import messaging
 import os
@@ -14,7 +14,6 @@ def loginpage():
         password = request.form['password']
         msg = messaging.Messaging()
         msg.send('GETHASH', { 'username': username })
-        '''
         response = msg.receive()
         if response['success'] != True:
             return "Login failed."
@@ -23,7 +22,6 @@ def loginpage():
             return redirect('/')
         else:
             return "Login failed."
-        '''
     return render_template('login.html')
 
 @app.route('/register')
