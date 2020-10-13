@@ -2,6 +2,8 @@ import pika
 import time
 import os
 import psycopg2
+import json
+import logging
 
 # Sleep time for BE to connect
 sleepTime = 20
@@ -15,7 +17,7 @@ credentials = pika.PlainCredentials(os.environ['RABBITMQ_DEFAULT_USER'],
 connection = pika.BlockingConnection(
     pika.ConnectionParameters(host='messaging', credentials=credentials))
 channel = connection.channel()
-channel.queue_declare(queue='task_queue', durable=True)
+channel.queue_declare(queue='request', durable=True)
 
 # Connect with DB
 print(' [*] Connecting to the database...')
@@ -30,9 +32,9 @@ try:
         password=postgres_password
     )
 
-    cursor = conn.cursor()
-    postgres_insert_query = """ INSERT INTO usersinfo (id, first_names, last_name, email, password, registration_date, hash) VALUES ( %s,%s, %s, %s, %s, CURRENT_TIMESTAMP, %s)  """
-    record_to_insert = ('98', 'Kamal', 'Youssef',
+    '''
+    postgres_insert_query = """ INSERT INTO usersinfo (username, firstname, lastname, email, registration_date, hash) VALUES ( %s,%s, %s, %s, %s, CURRENT_TIMESTAMP, %s)  """
+    record_to_insert = ('ky98', 'Kamal', 'Youssef',
                         'testemail4324343@gmail.com', 'password123', 'd3fmsdf21342343sd3ksekfl')
 
     cursor.execute(postgres_insert_query, record_to_insert)
@@ -40,36 +42,63 @@ try:
     conn.commit()
     count = cursor.rowcount
     print(count, "Record inserted successfully into usersinfo table")
-
+    '''
 except (Exception, psycopg2.Error) as error:
     if(connection):
         print("Failed to insert record into usersinfo table", error)
-
+'''
 finally:
     # closing database connection.
     if(conn):
         cursor.close()
         conn.close()
         print("PostgreSQL connection is closed")
-
-
+'''
+cursor = conn.cursor()
 # Talking with Messaging
 def callback(ch, method, properties, body):
-    print(" [x] Received %s" % body)
-    cmd = body.decode()
-
-    if cmd == 'hey':
-        print("hey there")
-    elif cmd == 'hello':
-        print("well hello there")
+    request = json.loads(body)
+    if 'action' not in request:
+        response = {
+            'success': False,
+            'message': "Request does not have action"
+        }
     else:
-        print("sorry i did not understand ", body)
-
-    print(" [x] Done")
-
-    ch.basic_ack(delivery_tag=method.delivery_tag)
-
+        action = request['action']
+        if action == 'GETHASH':
+            data = request['data']
+            username = data['username']
+            logging.info(f"GETHASH request for {username} received")
+            cursor.execute('SELECT hash FROM usersinfo WHERE username=%s;', (username,))
+            row =  cursor.fetchone()
+            if row == None:
+                response = {'success': False}
+            else:
+                response = {'success': True, 'hash': row[0]}
+        elif action == 'REGISTER':
+            data = request['data']
+            firstname = data['firstname']
+            lastname = data ['lastname']
+            email = data['email']
+            username = data['username']
+            hashed = data['hash']
+            logging.info(f"REGISTER request for {email} received")
+            cursor.execute('SELECT * FROM usersinfo WHERE email=%s or username=%s;', (email,username))
+            if cursor.fetchone() != None:
+                response = {'success': False, 'message': 'Username or email already exists'}
+            else:
+                cursor.execute('INSERT INTO usersinfo VALUES (%s, %s, %s, %s, %s);', (username, firstname, lastname, email, hashed))
+                conn.commit()
+                response = {'success': True}
+        else:
+            response = {'success': False, 'message': "Unknown action"}
+    logging.info(response)
+    ch.basic_publish(
+        exchange='',
+        routing_key=properties.reply_to,
+        body=json.dumps(response)
+    )
 
 channel.basic_qos(prefetch_count=1)
-channel.basic_consume(queue='task_queue', on_message_callback=callback)
+channel.basic_consume(queue='request', auto_ack=True, on_message_callback=callback)
 channel.start_consuming()

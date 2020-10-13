@@ -52,6 +52,7 @@ services:
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
       DB_USER: ${POSTGRES_USER}
       DB_PASS: ${POSTGRES_PASSWORD}
+      PYTHONUNBUFFERED: 1
   # end::back_end[]
 volumes:
   db-data:

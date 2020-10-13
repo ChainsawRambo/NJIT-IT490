@@ -26,7 +26,7 @@ class Messaging:
             pika.ConnectionParameters(host=self.host, credentials=self.credentials))
         self.channel = self.connection.channel()
         logging.info("Messaging: Creating queues")
-        self.channel.queue_declare(queue=self.request_queue_name)
+        self.channel.queue_declare(queue=self.request_queue_name, durable=True)
         self.result_queue = self.channel.queue_declare(queue='', exclusive=True).method.queue
 
     def __del__(self):
@@ -66,8 +66,8 @@ class Messaging:
                 logging.info(f"Messaging: received={received}")
                 return received
             elif attempts > 10:
-                logging.info("Messaging: receive did not get message") 
-                return None 
+                logging.info("Messaging: receive did not get message")
+                return None
             else:
                 time.sleep(0.1)
                 attempts += 1
