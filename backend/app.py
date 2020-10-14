@@ -5,7 +5,7 @@ import psycopg2
 import json
 import logging
 import requests
-import urllib.parse
+import urllib3
 
 # Sleep time for BE to connect
 sleepTime = 20
