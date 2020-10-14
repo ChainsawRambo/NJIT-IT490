@@ -111,7 +111,8 @@ main_api= 'https://www.thecocktaildb.com/api/json/v1/1/search.php?'
 
 #HARD CODED CHANGE LATER
 cocktail='margarita'
-url = main_api + urllib.parse.urlencode({'name': cocktail})
+url = main_api + urllib.parse.urlencode({'s': cocktail})
+print(url)
 
 #JSON Output
 json_data = requests.get(url).json()
