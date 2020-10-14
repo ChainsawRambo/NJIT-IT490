@@ -32,6 +32,7 @@ try:
         password=postgres_password
     )
 
+    #Old input code
     '''
     postgres_insert_query = """ INSERT INTO usersinfo (username, firstname, lastname, email, registration_date, hash) VALUES ( %s,%s, %s, %s, %s, CURRENT_TIMESTAMP, %s)  """
     record_to_insert = ('ky98', 'Kamal', 'Youssef',
@@ -46,6 +47,8 @@ try:
 except (Exception, psycopg2.Error) as error:
     if(connection):
         print("Failed to insert record into usersinfo table", error)
+
+#Old code used to close DB connection
 '''
 finally:
     # closing database connection.
@@ -65,6 +68,7 @@ def callback(ch, method, properties, body):
         }
     else:
         action = request['action']
+        # Pull hashed password
         if action == 'GETHASH':
             data = request['data']
             username = data['username']
@@ -75,6 +79,7 @@ def callback(ch, method, properties, body):
                 response = {'success': False}
             else:
                 response = {'success': True, 'hash': row[0]}
+        #Insert user data from register
         elif action == 'REGISTER':
             data = request['data']
             firstname = data['firstname']
