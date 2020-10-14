@@ -4,6 +4,8 @@ import os
 import psycopg2
 import json
 import logging
+import requests
+import urllib.parse
 
 # Sleep time for BE to connect
 sleepTime = 20
@@ -103,6 +105,17 @@ def callback(ch, method, properties, body):
         routing_key=properties.reply_to,
         body=json.dumps(response)
     )
+
+#Conenction with cocktail API
+main_api= 'https://www.thecocktaildb.com/api/json/v1/1/search.php?'
+
+#HARD CODED CHANGE LATER
+cocktail='margarita'
+url = main_api + urllib.parse.urlencode({'name': cocktail})
+
+#JSON Output
+json_data = requests.get(url).json()
+print(json_data)
 
 channel.basic_qos(prefetch_count=1)
 channel.basic_consume(queue='request', auto_ack=True, on_message_callback=callback)
