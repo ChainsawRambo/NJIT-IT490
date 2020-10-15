@@ -4,8 +4,7 @@ import os
 import psycopg2
 import json
 import logging
-import requests
-import urllib3
+import urllib.parse
 
 # Sleep time for BE to connect
 sleepTime = 20
@@ -59,7 +58,7 @@ finally:
         conn.close()
         print("PostgreSQL connection is closed")
 '''
-cursor = conn.cursor()
+#cursor = conn.cursor()
 # Talking with Messaging
 def callback(ch, method, properties, body):
     request = json.loads(body)
