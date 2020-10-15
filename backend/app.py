@@ -4,6 +4,7 @@ import os
 import psycopg2
 import json
 import logging
+import requests
 
 # Sleep time for BE to connect
 sleepTime = 20
@@ -90,6 +91,11 @@ def callback(ch, method, properties, body):
                 cursor.execute('INSERT INTO usersinfo VALUES (%s, %s, %s, %s, %s);', (username, firstname, lastname, email, hashed))
                 conn.commit()
                 response = {'success': True}
+        elif action == 'SCRAPE':
+            data = request['data']
+            cocktailname = {'s':data['searchfield']}
+            r = requests.get('https://www.thecocktaildb.com/api/json/v1/1/search.php', params=cocktailname)
+            response = r.json()
         else:
             response = {'success': False, 'message': "Unknown action"}
     logging.info(response)
