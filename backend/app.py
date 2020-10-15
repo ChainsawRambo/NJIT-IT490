@@ -97,10 +97,10 @@ def callback(ch, method, properties, body):
             #cocktailname
             cocktailname = {'s':data['searchfield']}
             #ingredients
-            cocktailI = {'i':data['searchfield']}
+            #cocktailI = {'i':data['searchfield']}
             r = requests.get('https://www.thecocktaildb.com/api/json/v1/1/search.php', params=cocktailname)
-            i = requests.get('https://www.thecocktaildb.com/api/json/v1/1/filter.php', params=cocktailI)
-            response = r.json() + i.json()
+            #i = requests.get('https://www.thecocktaildb.com/api/json/v1/1/filter.php', params=cocktailI)
+            response = r.json()
         else:
             response = {'success': False, 'message': "Unknown action"}
     logging.info(response)
