@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect
+from flask import Flask, render_template, request, session, redirect, flash
 from werkzeug.security import check_password_hash, generate_password_hash
 import pika
 import messaging
@@ -28,8 +28,23 @@ def loginpage():
 def userpage():
     if 'username' not in session:
         return redirect('/')
-    else:
-        return render_template('userpage.html')
+    if request.method == 'POST':
+        searchfield = request.form['searchfield']
+        msg = messaging.Messaging()
+        msg.send(
+            'SCRAPE',
+            {
+                'searchfield' : searchfield
+            }
+        )
+        response = msg.receive()
+        if response['drinks']:
+            flash(response['drinks'][0]['strDrink'])
+            thumbnail = (response['drinks'][0]['strDrinkThumb'])
+            return render_template('userpage.html', thumbnail=thumbnail)
+        else:
+            flash("error")
+    return render_template('userpage.html')
 
 @app.route('/register', methods=['GET','POST'])
 def registerpage():
