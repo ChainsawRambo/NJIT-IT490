@@ -29,19 +29,28 @@ def userpage():
     if 'username' not in session:
         return redirect('/')
     if request.method == 'POST':
+        dropdownvalue = request.form['dropdownvalue']
         searchfield = request.form['searchfield']
         msg = messaging.Messaging()
         msg.send(
             'SCRAPE',
             {
-                'searchfield' : searchfield
+                'searchfield' : searchfield,
+                'dropdownvalue' : dropdownvalue
             }
         )
         response = msg.receive()
-        if response['drinks']:
-            flash(response['drinks'][0]['strDrink'])
-            thumbnail = (response['drinks'][0]['strDrinkThumb'])
-            return render_template('userpage.html', thumbnail=thumbnail)
+        if response['success']:
+            if response['search'] == 'cocktail_name':
+                flash(response['cocktailname'])
+                thumbnail = (response['cocktailimage'])
+                return render_template('userpage.html', thumbnail=thumbnail)
+            elif response['search'] == 'ingredient_name':
+                flash(response['ingredientdescription'])
+            elif response['search'] == 'random':
+                flash(response['cocktailname'])
+                thumbnail = (response['cocktailimage'])
+                return render_template('userpage.html', thumbnail=thumbnail)
         else:
             flash("error")
     return render_template('userpage.html')
