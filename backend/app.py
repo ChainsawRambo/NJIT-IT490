@@ -33,29 +33,12 @@ try:
         password=postgres_password
     )
 
-    '''
-    postgres_insert_query = """ INSERT INTO usersinfo (username, firstname, lastname, email, registration_date, hash) VALUES ( %s,%s, %s, %s, %s, CURRENT_TIMESTAMP, %s)  """
-    record_to_insert = ('ky98', 'Kamal', 'Youssef',
-                        'testemail4324343@gmail.com', 'password123', 'd3fmsdf21342343sd3ksekfl')
-
-    cursor.execute(postgres_insert_query, record_to_insert)
-
-    conn.commit()
-    count = cursor.rowcount
-    print(count, "Record inserted successfully into usersinfo table")
-    '''
 except (Exception, psycopg2.Error) as error:
     if(connection):
         print("Failed to insert record into usersinfo table", error)
-'''
-finally:
-    # closing database connection.
-    if(conn):
-        cursor.close()
-        conn.close()
-        print("PostgreSQL connection is closed")
-'''
+
 cursor = conn.cursor()
+
 # Talking with Messaging
 def callback(ch, method, properties, body):
     request = json.loads(body)
