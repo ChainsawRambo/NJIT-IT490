@@ -69,24 +69,23 @@ def callback(ch, method, properties, body):
 
 def scrape_data(data):
     search_by = data['dropdownvalue']
-    NUM_DRINKS = 16
     if search_by == 'cocktail_name':
-        response = search_cocktail_name(NUM_DRINKS, data)
+        response = search_cocktail_name(data)
     elif search_by == 'ingredient_name':
         response = search_ingredient_name(data)
     elif search_by == 'random':
-        response = search_random(NUM_DRINKS)
+        response = search_random()
     return response
 
 
-def search_random(NUM_DRINKS):
+def search_random():
     r = requests.get('https://www.thecocktaildb.com/api/json/v1/1/random.php')
     r = r.json()
     cocktail_name = r['drinks'][0]['strDrink']
     cocktail_image = r['drinks'][0]['strDrinkThumb']
     cocktail_ingredients = []
     cocktail_measurements = []
-    for i in range(1, NUM_DRINKS):
+    for i in range(1, 16):
         add_cocktail_ingredients(cocktail_ingredients, i, r)
         add_cocktail_measurements(cocktail_measurements, i, r)
     cocktail_instructions = r['drinks'][0]['strInstructions']
@@ -136,7 +135,7 @@ def search_ingredient_name(data):
     return response
 
 
-def search_cocktail_name(NUM_DRINKS, data):
+def search_cocktail_name(data):
     search_by_cocktail_name = {'s': data['searchfield']}
     r = requests.get('https://www.thecocktaildb.com/api/json/v1/1/search.php', params=search_by_cocktail_name)
     r = r.json()
@@ -145,7 +144,7 @@ def search_cocktail_name(NUM_DRINKS, data):
         cocktail_image = r['drinks'][0]['strDrinkThumb']
         cocktail_ingredients = []
         cocktail_measurements = []
-        for i in range(1, NUM_DRINKS):
+        for i in range(1, 16):
             add_cocktail_ingredients(cocktail_ingredients, i, r)
             add_cocktail_measurements(cocktail_measurements, i, r)
         cocktail_instructions = r['drinks'][0]['strInstructions']
