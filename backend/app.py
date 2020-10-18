@@ -65,7 +65,7 @@ def callback(ch, method, properties, body):
         body=json.dumps(response)
     )
 
-#Functions
+#Function Definitions
 
 def scrape_data(data):
     search_by = data['dropdownvalue']
@@ -91,9 +91,16 @@ def search_random(NUM_DRINKS):
         add_cocktail_measurements(cocktail_measurements, i, r)
     cocktail_instructions = r['drinks'][0]['strInstructions']
     cocktail_category = r['drinks'][0]['strCategory']
-    response = {'success': True, 'search': 'random', 'cocktailname': cocktail_name, 'cocktailimage': cocktail_image,
-                'cocktailingredients': cocktail_ingredients, 'cocktailmeasurements': cocktail_measurements,
-                'cocktailinstructions': cocktail_instructions, 'cocktailcategory': cocktail_category}
+    response = {
+                    'success': True,
+                    'search': 'random',
+                    'cocktailname': cocktail_name,
+                    'cocktailimage': cocktail_image,
+                    'cocktailingredients': cocktail_ingredients,
+                    'cocktailmeasurements': cocktail_measurements,
+                    'cocktailinstructions': cocktail_instructions,
+                    'cocktailcategory': cocktail_category
+                }
     return response
 
 
@@ -116,9 +123,14 @@ def search_ingredient_name(data):
         ingredient_description = r['ingredients'][0]['strDescription']
         ingredient_type = r['ingredients'][0]['strType']
         ingredient_alchohol = r['ingredients'][0]['strAlcohol']
-        response = {'success': True, 'search': 'ingredient_name', 'ingredientname': ingredient_name,
-                    'ingredientdescription': ingredient_description, 'ingredienttype': ingredient_type,
-                    'ingredientalchohol': ingredient_alchohol}
+        response = {
+                        'success': True,
+                        'search': 'ingredient_name',
+                        'ingredientname': ingredient_name,
+                        'ingredientdescription': ingredient_description,
+                        'ingredienttype': ingredient_type,
+                        'ingredientalchohol': ingredient_alchohol
+                    }
     else:
         response = {'success': False, 'message': "Invalid Ingredient Name"}
     return response
