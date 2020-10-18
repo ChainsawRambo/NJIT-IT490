@@ -146,10 +146,8 @@ def search_cocktail_name(NUM_DRINKS, data):
         cocktail_ingredients = []
         cocktail_measurements = []
         for i in range(1, NUM_DRINKS):
-            if r['drinks'][0]['strIngredient' + str(i)]:
-                cocktail_ingredients.append(r['drinks'][0]['strIngredient' + str(i)])
-            if r['drinks'][0]['strMeasure' + str(i)]:
-                cocktail_measurements.append(r['drinks'][0]['strMeasure' + str(i)])
+            add_cocktail_ingredients(cocktail_ingredients, i, r)
+            add_cocktail_measurements(cocktail_measurements, i, r)
         cocktail_instructions = r['drinks'][0]['strInstructions']
         cocktail_category = r['drinks'][0]['strCategory']
         response = \
