@@ -6,14 +6,23 @@
     <title>Cocktail</title>
     <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/userpage.css') }}">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script>
+      var username = {{ usernm }}
+  </script>
   </head>
   <body>
-    <div>
-      <h1>Bartender App</h1>
-    </div>
-    <div class="LogOut">
-      Login? <a href="/logout">Logout</a>
-    </div>
+    <nav class="navbar navbar-light bg-light">
+      <a class="navbar-brand" href="#">
+        <img src="../static/cocktail.png" width="23" height="30" class="d-inline-block align-top" alt="">
+        Bartender App
+      </a>
+      <form class="form-inline">
+        <div class="mr-2">
+          <a>Welcome: </a>{{ username }}
+        </div>
+        <a class="btn btn-sm btn-outline-secondary" href="/logout" role="button">Logout</a>
+      </form>
+    </nav>
     <form class="form-register" method="post">
       <select name="dropdownvalue">
         <option value="cocktail_name">Cocktail</option>
