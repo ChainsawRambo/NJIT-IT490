@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, redirect, flash
+from flask import Flask, render_template, request, session, redirect
 from werkzeug.security import check_password_hash, generate_password_hash
 import pika
 import messaging
@@ -28,9 +28,21 @@ def loginpage():
 def userpage():
     if 'username' not in session:
         return redirect('/')
+    cocktailname=None
+    thumbnail=None
+    category=None
+    instructions=None
+    ingredients=None
+    measurements=None
+    ingredientname=None
+    ingredientdescription=None
+    ingredienttype=None
+    ingredientalchohol=None
     if request.method == 'POST':
         dropdownvalue = request.form['dropdownvalue']
         searchfield = request.form['searchfield']
+        if dropdownvalue == 'cocktail_name' and searchfield == 'random':
+            dropdownvalue = 'random'
         msg = messaging.Messaging()
         msg.send(
             'SCRAPE',
@@ -41,19 +53,21 @@ def userpage():
         )
         response = msg.receive()
         if response['success']:
-            if response['search'] == 'cocktail_name':
-                flash(response['cocktailname'])
+            if response['search'] == 'cocktail_name' or response['search'] == 'random':
                 thumbnail = (response['cocktailimage'])
-                return render_template('userpage.html', thumbnail=thumbnail)
+                cocktailname = (response['cocktailname'])
+                category=(response['cocktailcategory'])
+                instructions=(response['cocktailinstructions'])
+                ingredients=(response['cocktailingredients'])
+                measurements=(response['cocktailmeasurements'])
             elif response['search'] == 'ingredient_name':
-                flash(response['ingredientdescription'])
-            elif response['search'] == 'random':
-                flash(response['cocktailname'])
-                thumbnail = (response['cocktailimage'])
-                return render_template('userpage.html', thumbnail=thumbnail)
+                ingredientname= (response['ingredientname'])
+                ingredientdescription= (response['ingredientdescription'])
+                ingredienttype= (response['ingredienttype'])
+                ingredientalchohol= (response['ingredientalchohol'])
         else:
-            flash("error")
-    return render_template('userpage.html')
+            cocktailname = "ERROR"
+    return render_template('userpage.html',thumbnail=thumbnail, cocktailname=cocktailname, category=category, instructions=instructions, ingredients=ingredients, measurements=measurements, ingredientname=ingredientname, ingredientdescription=ingredientdescription, ingredienttype=ingredienttype, ingredientalchohol=ingredientalchohol)
 
 @app.route('/register', methods=['GET','POST'])
 def registerpage():

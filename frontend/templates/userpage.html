@@ -7,10 +7,61 @@
   </head>
   <body>
     <style>
+      body{
+        background-color: #F5F5F5
+        height: 100%
+      }
       img{
         width: 100px;
         height: 100px;
       }
+      .searcharea{
+        text-align: center
+      }
+      input{
+        width:70%
+        border: 1px solid grey;
+        border-radius: 5px;
+        box-sizing: border-box;
+        height:2em;
+      }
+      input:focus{
+        outline: 1px solid lightskyblue;
+      }
+      button{
+        background-color:dodgerblue;
+        color:white;
+        border: solid dodgerblue;
+        border-radius: 4px;
+        height:2em;
+      }
+      select,option{
+        border: 1px solid grey;
+        border-radius: 5px;
+        box-sizing: border-box;
+        height:2em;
+      }
+      select:focus, option:focus{
+        outline: 1px solid lightskyblue;
+      }
+
+      p{
+        text-align: center;
+      }
+      .searchresult1{
+        display: flex;
+	      align-items: center;
+        flex-direction: column;
+      }
+      .searchresult2{
+        display:flex;
+        justify-content: center;
+      }
+
+      .searchresult2 > div{
+        margin: 40px;
+      }
+
     </style>
     <div>
       You Have signed in!!!!
@@ -18,25 +69,73 @@
     <div class="LogOut">
       Login? <a href="/logout">Logout</a>
     </div>
-    <form class="form-register" method="post">
-      <select name="dropdownvalue">
-        <option value="cocktail_name">Cocktail</option>
-        <option value="ingredient_name">Ingredient</option>
-        <option value="random">Random</option>
-      </select>
-      <input type="text" name="searchfield">
-      <button class="btn btn-primary" type="submit">Search</button>
-    </form>
-    {% with messages = get_flashed_messages() %}
-	    {% if messages %}
-	      {% for message in messages %}
-    		  <div class="alert alert-warning alert-dismissible" role="alert">
-    		  <button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">×</span></button>
-  			  {{message}}
-          <image src="{{thumbnail}}" alt="cocktail-thumbnail">
-		      </div>
-		    {% endfor %}
-	    {% endif %}
-	  {% endwith %}
+    <div class="searcharea">
+      <form class="form-register" method="post">
+        <select name="dropdownvalue">
+          <option value="cocktail_name">Cocktail</option>
+          <option value="ingredient_name">Ingredient</option>
+        </select>
+        <input type="text" size="25" placeholder="Search by drink or type random" name="searchfield">
+        <button class="btn btn-primary" type="submit">Search</button>
+      </form>
+    </div>
+
+    <div class="searchresult1">
+      {% if cocktailname %}
+        <h1> {{cocktailname}} </h1>
+      {% endif %}
+
+      {% if ingredientname %}
+        <h1> {{ingredientname}} </h1>
+      {% endif %}
+
+      {% if ingredienttype %}
+        <p> Type: {{ingredienttype}} </p>
+      {% endif %}
+
+      {% if ingredientalchohol %}
+        <p> Alchohol: {{ingredientalchohol}} </p>
+      {% endif %}
+
+      {% if category %}
+        <p> {{category}} </p>
+      {% endif %}
+
+      {% if thumbnail %}
+        <image src="{{thumbnail}}" alt="cocktail-thumbnail">
+      {% endif %}
+
+      {% if instructions %}
+        <p><em><b>{{instructions}}</b></em></p>
+      {% endif %}
+
+      {% if ingredientdescription %}
+        <p><em><b>{{ingredientdescription}}</b></em></p>
+      {% endif %}
+    </div>
+
+    <div class="searchresult2">
+      {% if ingredients %}
+        <div class="lower">
+          <h2>Ingredients</h2>
+          <ul>
+          {% for ingredient in ingredients %}
+    						<li><b>{{ ingredient }}</b></li>
+    			{% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+
+      {% if measurements %}
+        <div class="lower2">
+          <h2>Measurements</h2>
+          <ul>
+          {% for measurement in measurements %}
+    						<li><b>{{ measurement }}</b></li>
+    			{% endfor %}
+          </ul>
+        </div>
+      {% endif %}
+    </div>
   </body>
 </html>
