@@ -19,6 +19,17 @@ def loginpage():
             return "Login failed."
         if check_password_hash(response['hash'], password):
             session['username'] = username
+            session['cocktailname'] = None
+            session['thumbnail'] = None
+            session['category']=None
+            session['instructions']=None
+            session['ingredients']=None
+            session['measurements']=None
+            session['ingredientname']=None
+            session['ingredientdescription']=None
+            session['ingredienttype']=None
+            session['ingredientalchohol']=None
+            session['favorite']=False
             return redirect('/userpage')
         else:
             return "Login failed."
@@ -28,46 +39,68 @@ def loginpage():
 def userpage():
     if 'username' not in session:
         return redirect('/')
-    cocktailname=None
-    thumbnail=None
-    category=None
-    instructions=None
-    ingredients=None
-    measurements=None
-    ingredientname=None
-    ingredientdescription=None
-    ingredienttype=None
-    ingredientalchohol=None
+
     if request.method == 'POST':
-        dropdownvalue = request.form['dropdownvalue']
-        searchfield = request.form['searchfield']
-        if dropdownvalue == 'cocktail_name' and searchfield == 'random':
-            dropdownvalue = 'random'
-        msg = messaging.Messaging()
-        msg.send(
-            'SCRAPE',
-            {
-                'searchfield' : searchfield,
-                'dropdownvalue' : dropdownvalue
-            }
-        )
-        response = msg.receive()
-        if response['success']:
-            if response['search'] == 'cocktail_name' or response['search'] == 'random':
-                thumbnail = (response['cocktailimage'])
-                cocktailname = (response['cocktailname'])
-                category=(response['cocktailcategory'])
-                instructions=(response['cocktailinstructions'])
-                ingredients=(response['cocktailingredients'])
-                measurements=(response['cocktailmeasurements'])
-            elif response['search'] == 'ingredient_name':
-                ingredientname= (response['ingredientname'])
-                ingredientdescription= (response['ingredientdescription'])
-                ingredienttype= (response['ingredienttype'])
-                ingredientalchohol= (response['ingredientalchohol'])
-        else:
-            cocktailname = "ERROR"
-    return render_template('userpage.html',thumbnail=thumbnail, cocktailname=cocktailname, category=category, instructions=instructions, ingredients=ingredients, measurements=measurements, ingredientname=ingredientname, ingredientdescription=ingredientdescription, ingredienttype=ingredienttype, ingredientalchohol=ingredientalchohol)
+        if 'btn2' in request.form:
+            if session['cocktailname'] != None:
+                msg = messaging.Messaging()
+                msg.send(
+                    'favorite',
+                    {
+                        'username' : session['username'],
+                        'fav' : session['cocktailname']
+                    }
+                )
+                response = msg.receive()
+                if response['success']:
+                    if response['deleted']:
+                        session['favorite']=False
+                    elif response['inserted']:
+                        session['favorite']=True
+
+        if 'btn1' in request.form:
+            dropdownvalue = request.form['dropdownvalue']
+            searchfield = request.form['searchfield']
+            if dropdownvalue == 'cocktail_name' and searchfield == 'random':
+                dropdownvalue = 'random'
+            msg = messaging.Messaging()
+            msg.send(
+                'SCRAPE',
+                {
+                    'searchfield' : searchfield,
+                    'dropdownvalue' : dropdownvalue,
+                    'username' : session['username']
+                }
+            )
+            response = msg.receive()
+            if response['success']:
+                if response['search'] == 'cocktail_name' or response['search'] == 'random':
+                    session['thumbnail'] = (response['cocktailimage'])
+                    session['cocktailname'] = (response['cocktailname'])
+                    session['category']=(response['cocktailcategory'])
+                    session['instructions']=(response['cocktailinstructions'])
+                    session['ingredients']=(response['cocktailingredients'])
+                    session['measurements']=(response['cocktailmeasurements'])
+                    session['favorite'] = (response['favorite'])
+                    session['ingredientname']=None
+                    session['ingredientdescription']=None
+                    session['ingredienttype']=None
+                    session['ingredientalchohol']=None
+                elif response['search'] == 'ingredient_name':
+                    session['cocktailname']=None
+                    session['thumbnail']=None
+                    session['category']=None
+                    session['instructions']=None
+                    session['ingredients']=None
+                    session['measurements']=None
+                    session['ingredientname']= (response['ingredientname'])
+                    session['ingredientdescription'] = (response['ingredientdescription'])
+                    session['ingredienttype']= (response['ingredienttype'])
+                    session['ingredientalchohol']= (response['ingredientalchohol'])
+            else:
+                cocktailname = "ERROR"
+    return render_template('userpage.html')
+
 
 @app.route('/register', methods=['GET','POST'])
 def registerpage():
@@ -93,10 +126,44 @@ def registerpage():
             response = msg.receive()
             if response['success']:
                 session['username'] = username
+                session['cocktailname'] = None
+                session['thumbnail'] = None
+                session['category']=None
+                session['instructions']=None
+                session['ingredients']=None
+                session['measurements']=None
+                session['ingredientname']=None
+                session['ingredientdescription']=None
+                session['ingredienttype']=None
+                session['ingredientalchohol']=None
+                session['favorite']=False
                 return redirect('/userpage')
             else:
                 return f"{response['message']}"
     return render_template('register.html')
+
+@app.route('/favorites')
+def favorites():
+    session['cocktailname'] = None
+    session['thumbnail'] = None
+    session['category']=None
+    session['instructions']=None
+    session['ingredients']=None
+    session['measurements']=None
+    session['ingredientname']=None
+    session['ingredientdescription']=None
+    session['ingredienttype']=None
+    session['ingredientalchohol']=None
+    session['favorite']=False
+    msg = messaging.Messaging()
+    msg.send(
+        'getfavorites',
+        {
+            'username' : session['username']
+        }
+    )
+    response = msg.receive()
+    return render_template('favorites.html',data=response)
 
 @app.route('/logout')
 def logout():

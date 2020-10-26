@@ -1,141 +1,152 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1,shrink-to-fit=no">
-    <title>Cocktail</title>
-  </head>
-  <body>
-    <style>
-      body{
-        background-color: #F5F5F5
-        height: 100%
-      }
-      img{
-        width: 100px;
-        height: 100px;
-      }
-      .searcharea{
-        text-align: center
-      }
-      input{
-        width:70%
-        border: 1px solid grey;
-        border-radius: 5px;
-        box-sizing: border-box;
-        height:2em;
-      }
-      input:focus{
-        outline: 1px solid lightskyblue;
-      }
-      button{
-        background-color:dodgerblue;
-        color:white;
-        border: solid dodgerblue;
-        border-radius: 4px;
-        height:2em;
-      }
-      select,option{
-        border: 1px solid grey;
-        border-radius: 5px;
-        box-sizing: border-box;
-        height:2em;
-      }
-      select:focus, option:focus{
-        outline: 1px solid lightskyblue;
-      }
+{% extends 'base.html' %}
 
-      p{
-        text-align: center;
-      }
-      .searchresult1{
-        display: flex;
-	      align-items: center;
-        flex-direction: column;
-      }
-      .searchresult2{
-        display:flex;
-        justify-content: center;
-      }
+{% block title %}Search{% endblock %}
 
-      .searchresult2 > div{
-        margin: 40px;
-      }
+{% block content %}
+<style>
+  body{
+    background-color: #F5F5F5
+    height: 100%
+  }
+  .cocktailimage{
+    width: 100px;
+    height: 100px;
+  }
+  .searcharea{
+    text-align: center
+  }
+  input{
+    width:70%
+    border: 1px solid grey;
+    border-radius: 5px;
+    box-sizing: border-box;
+    height:2em;
+  }
+  input:focus{
+    outline: 1px solid lightskyblue;
+  }
+  .btnbtn-primary1{
+    background-color:yellow;
+    color:black;
+    border: solid yellow;
+    border-radius: 4px;
+    height:2em;
+  }
+  .btnbtn-primary2{
+    background-color:black;
+    color:white;
+    border: solid yellow;
+    border-radius: 4px;
+    height:2em;
+  }
+  select,option{
+    border: 1px solid grey;
+    border-radius: 5px;
+    box-sizing: border-box;
+    height:2em;
+  }
+  select:focus, option:focus{
+    outline: 1px solid lightskyblue;
+  }
 
-    </style>
-    <div>
-      You Have signed in!!!!
+
+  .searchresult1{
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+  }
+
+  .searchresult1 > p{
+    text-align: center;
+    width: 70%
+  }
+
+  .searchresult2{
+    display:flex;
+    justify-content: center;
+  }
+
+  .searchresult2 > div{
+    margin: 40px;
+  }
+
+</style>
+
+<div class="searcharea">
+  <form class="form-register" method="post">
+    <select name="dropdownvalue">
+      <option value="cocktail_name">Cocktail</option>
+      <option value="ingredient_name">Ingredient</option>
+    </select>
+    <input type="text" size="25" placeholder="Search by drink or type random" name="searchfield">
+    <button class="btn btn-primary" type="submit" name="btn1" val="search">Search</button>
+  </form>
+</div>
+
+<div class="searchresult1">
+  {% if session['cocktailname'] %}
+
+    <form class="form-register" method="post">
+      {% if session['favorite'] %}
+        <button class="btnbtn-primary1" type="submit" name="btn2" value="fav">Favorite</button>
+      {% else %}
+        <button class="btnbtn-primary2" type="submit" name="btn2" value="unfav">Favorite?</button>
+      {% endif %}
+    </form>
+
+    <h1> {{session['cocktailname']}} </h1>
+  {% endif %}
+
+  {% if session['ingredientname'] %}
+    <h1> {{session['ingredientname']}} </h1>
+  {% endif %}
+
+  {% if session['ingredienttype'] %}
+    <p> Type: {{session['ingredienttype']}} </p>
+  {% endif %}
+
+  {% if session['ingredientalchohol'] %}
+    <p> Alchohol: {{session['ingredientalchohol']}} </p>
+  {% endif %}
+
+  {% if session['category'] %}
+    <p> {{session['category']}} </p>
+  {% endif %}
+
+  {% if session['thumbnail'] %}
+    <image class="cocktailimage" src="{{session['thumbnail']}}" alt="cocktail-thumbnail">
+  {% endif %}
+
+  {% if session['instructions'] %}
+    <p><em><b>{{session['instructions']}}</b></em></p>
+  {% endif %}
+
+  {% if session['ingredientdescription'] %}
+    <p><em><b>{{session['ingredientdescription']}}</b></em></p>
+  {% endif %}
+</div>
+
+<div class="searchresult2">
+  {% if session['ingredients'] %}
+    <div class="lower">
+      <h2>Ingredients</h2>
+      <ul>
+      {% for ingredient in session['ingredients'] %}
+            <li><b>{{ ingredient }}</b></li>
+      {% endfor %}
+      </ul>
     </div>
-    <div class="LogOut">
-      Login? <a href="/logout">Logout</a>
+  {% endif %}
+
+  {% if session['measurements'] %}
+    <div class="lower2">
+      <h2>Measurements</h2>
+      <ul>
+      {% for measurement in session['measurements'] %}
+            <li><b>{{ measurement }}</b></li>
+      {% endfor %}
+      </ul>
     </div>
-    <div class="searcharea">
-      <form class="form-register" method="post">
-        <select name="dropdownvalue">
-          <option value="cocktail_name">Cocktail</option>
-          <option value="ingredient_name">Ingredient</option>
-        </select>
-        <input type="text" size="25" placeholder="Search by drink or type random" name="searchfield">
-        <button class="btn btn-primary" type="submit">Search</button>
-      </form>
-    </div>
-
-    <div class="searchresult1">
-      {% if cocktailname %}
-        <h1> {{cocktailname}} </h1>
-      {% endif %}
-
-      {% if ingredientname %}
-        <h1> {{ingredientname}} </h1>
-      {% endif %}
-
-      {% if ingredienttype %}
-        <p> Type: {{ingredienttype}} </p>
-      {% endif %}
-
-      {% if ingredientalchohol %}
-        <p> Alchohol: {{ingredientalchohol}} </p>
-      {% endif %}
-
-      {% if category %}
-        <p> {{category}} </p>
-      {% endif %}
-
-      {% if thumbnail %}
-        <image src="{{thumbnail}}" alt="cocktail-thumbnail">
-      {% endif %}
-
-      {% if instructions %}
-        <p><em><b>{{instructions}}</b></em></p>
-      {% endif %}
-
-      {% if ingredientdescription %}
-        <p><em><b>{{ingredientdescription}}</b></em></p>
-      {% endif %}
-    </div>
-
-    <div class="searchresult2">
-      {% if ingredients %}
-        <div class="lower">
-          <h2>Ingredients</h2>
-          <ul>
-          {% for ingredient in ingredients %}
-    						<li><b>{{ ingredient }}</b></li>
-    			{% endfor %}
-          </ul>
-        </div>
-      {% endif %}
-
-      {% if measurements %}
-        <div class="lower2">
-          <h2>Measurements</h2>
-          <ul>
-          {% for measurement in measurements %}
-    						<li><b>{{ measurement }}</b></li>
-    			{% endfor %}
-          </ul>
-        </div>
-      {% endif %}
-    </div>
-  </body>
-</html>
+  {% endif %}
+</div>
+{% endblock %}

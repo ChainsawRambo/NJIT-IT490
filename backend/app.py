@@ -56,6 +56,10 @@ def callback(ch, method, properties, body):
             response = register_user(data)
         elif action == 'SCRAPE':
             response = scrape_data(data)
+        elif action == 'favorite':
+            response = favorite(data)
+        elif action == 'getfavorites':
+            response = getfavorites(data)
         else:
             response = {'success': False, 'message': "Unknown action"}
     logging.info(response)
@@ -74,14 +78,14 @@ def scrape_data(data):
     elif search_by == 'ingredient_name':
         response = search_ingredient_name(data)
     elif search_by == 'random':
-        response = search_random()
+        response = search_random(data)
     return response
 
-
-def search_random():
+def search_random(data):
     r = requests.get('https://www.thecocktaildb.com/api/json/v1/1/random.php')
     r = r.json()
     cocktail_name = r['drinks'][0]['strDrink']
+    favorite = is_favorite(cocktail_name,data['username'])
     cocktail_image = r['drinks'][0]['strDrinkThumb']
     cocktail_ingredients = []
     cocktail_measurements = []
@@ -98,7 +102,8 @@ def search_random():
                     'cocktailingredients': cocktail_ingredients,
                     'cocktailmeasurements': cocktail_measurements,
                     'cocktailinstructions': cocktail_instructions,
-                    'cocktailcategory': cocktail_category
+                    'cocktailcategory': cocktail_category,
+                    'favorite': favorite
                 }
     return response
 
@@ -141,6 +146,7 @@ def search_cocktail_name(data):
     r = r.json()
     if r['drinks']:
         cocktail_name = r['drinks'][0]['strDrink']
+        favorite = is_favorite(cocktail_name,data['username'])
         cocktail_image = r['drinks'][0]['strDrinkThumb']
         cocktail_ingredients = []
         cocktail_measurements = []
@@ -158,7 +164,8 @@ def search_cocktail_name(data):
                 'cocktailingredients': cocktail_ingredients,
                 'cocktailinstructions': cocktail_instructions,
                 'cocktailmeasurements': cocktail_measurements,
-                'cocktailname': cocktail_name
+                'cocktailname': cocktail_name,
+                'favorite': favorite
             }
     else:
         response = {'success': False, 'message': "Invalid Cocktail Name"}
@@ -182,6 +189,28 @@ def register_user(data):
         response = {'success': True}
     return response
 
+def favorite(data):
+    username = data['username']
+    favorite = data['fav']
+    cursor.execute('SELECT * FROM usersfavorite WHERE userid=%s and cocktailname=%s;', (username,favorite))
+    if cursor.fetchone() != None:
+        cursor.execute('DELETE FROM usersfavorite WHERE userid=%s and cocktailname=%s;', (username, favorite))
+        conn.commit()
+        response = {'success': True, 'deleted': True, 'inserted':False, 'message': 'Deleted favorite'}
+    else:
+        cursor.execute('INSERT INTO usersfavorite VALUES (%s, %s);',
+                       (username, favorite))
+        conn.commit()
+        response = {'success': True, 'deleted': False, 'inserted':True}
+    return response
+
+def is_favorite(cocktail,username):
+    cursor.execute('SELECT * FROM usersfavorite WHERE userid=%s and cocktailname=%s;', (username,cocktail))
+    if cursor.fetchone() != None:
+        return True
+    else:
+        return False
+
 
 def get_hash(data):
     username = data['username']
@@ -194,6 +223,25 @@ def get_hash(data):
         response = {'success': True, 'hash': row[0]}
     return response
 
+def getfavorites(data):
+    username = data['username']
+    #cursor.execute('SELECT * FROM usersfavorite inner join usersinfo on usersfavorite.userid=usersinfo.username WHERE usersinfo.username=%s;', (username,))
+    cursor.execute('SELECT * FROM usersfavorite WHERE userid=%s;', (username,))
+    '''
+    row_headers=[x[0] for x in cursor.description]
+    rv = cursor.fetchall()
+    json_data=[]
+    for result in rv:
+        json_data.append(dict(zip(row_headers,result)))
+    return json.dumps(json_data)
+    '''
+    rv = cursor.fetchall()
+    result=[]
+    for entry in rv:
+        result.append(entry[1])
+
+    response = {'success':True, 'cocktails':result}
+    return response
 
 channel.basic_qos(prefetch_count=1)
 channel.basic_consume(queue='request', auto_ack=True, on_message_callback=callback)

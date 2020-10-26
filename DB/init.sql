@@ -8,3 +8,9 @@ CREATE TABLE usersinfo
     email varchar(255) not null unique,
     hash VARCHAR(255) NOT NULL
 );
+
+CREATE TABLE usersfavorite
+(
+    userid varchar(50),
+    cocktailname varchar(50)
+);

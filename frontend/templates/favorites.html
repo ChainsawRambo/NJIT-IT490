@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block title %}Favorites{% endblock %}
+
+{% block content %}
+  <div>
+  {% if data.success %}
+  <ul>
+    {% for cocktail in data.cocktails %}
+          <li><b>{{ cocktail }}</b></li>
+    {% endfor %}
+  <ul>
+  {% endif %}
+  </div>
+{% endblock %}
