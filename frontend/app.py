@@ -55,8 +55,8 @@ def userpage():
                 return render_template('userpage.html', thumbnail=thumbnail)
         else:
             flash("error")
-        print(session['username'])
-        username = session['username']
+        username = session.get('username')
+        user(user)
     return render_template('userpage.html', usernm=session['username'])
 
 
