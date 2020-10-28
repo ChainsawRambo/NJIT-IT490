@@ -6,39 +6,6 @@ import json
 import logging
 import requests
 
-# Sleep time for BE to connect
-sleepTime = 20
-print(' [*] Sleeping for ', sleepTime, ' seconds.')
-time.sleep(sleepTime)
-
-# Connect with Messaging
-print(' [*] Connecting to server ...')
-credentials = pika.PlainCredentials(os.environ['RABBITMQ_DEFAULT_USER'],
-                                    os.environ['RABBITMQ_DEFAULT_PASS'])
-connection = pika.BlockingConnection(
-    pika.ConnectionParameters(host='messaging', credentials=credentials))
-channel = connection.channel()
-channel.queue_declare(queue='request', durable=True)
-
-# Connect with DB
-print(' [*] Connecting to the database...')
-postgres_user = os.environ['DB_USER']
-postgres_password = os.environ['DB_PASS']
-
-try:
-    conn = psycopg2.connect(
-        host='db',
-        database='bartender',
-        user=postgres_user,
-        password=postgres_password
-    )
-
-except (Exception, psycopg2.Error) as error:
-    if (connection):
-        print("Failed to insert record into usersinfo table", error)
-
-cursor = conn.cursor()
-
 # Talking with Messaging
 def callback(ch, method, properties, body):
     request = json.loads(body)
@@ -179,34 +146,34 @@ def register_user(data):
     username = data['username']
     hashed = data['hash']
     logging.info(f"REGISTER request for {email} received")
-    cursor.execute('SELECT * FROM usersinfo WHERE email=%s or username=%s;', (email, username))
-    if cursor.fetchone() != None:
+    curr_r.execute('SELECT * FROM usersinfo WHERE email=%s or username=%s;', (email, username))
+    if curr_r.fetchone() != None:
         response = {'success': False, 'message': 'Username or email already exists'}
     else:
-        cursor.execute('INSERT INTO usersinfo VALUES (%s, %s, %s, %s, %s);',
+        curr_rw.execute('INSERT INTO usersinfo VALUES (%s, %s, %s, %s, %s);',
                        (username, firstname, lastname, email, hashed))
-        conn.commit()
+        conn_rw.commit()
         response = {'success': True}
     return response
 
 def favorite(data):
     username = data['username']
     favorite = data['fav']
-    cursor.execute('SELECT * FROM usersfavorite WHERE userid=%s and cocktailname=%s;', (username,favorite))
-    if cursor.fetchone() != None:
-        cursor.execute('DELETE FROM usersfavorite WHERE userid=%s and cocktailname=%s;', (username, favorite))
-        conn.commit()
+    curr_r.execute('SELECT * FROM usersfavorite WHERE userid=%s and cocktailname=%s;', (username,favorite))
+    if curr_r.fetchone() != None:
+        curr_rw.execute('DELETE FROM usersfavorite WHERE userid=%s and cocktailname=%s;', (username, favorite))
+        conn_rw.commit()
         response = {'success': True, 'deleted': True, 'inserted':False, 'message': 'Deleted favorite'}
     else:
-        cursor.execute('INSERT INTO usersfavorite VALUES (%s, %s);',
+        curr_rw.execute('INSERT INTO usersfavorite VALUES (%s, %s);',
                        (username, favorite))
-        conn.commit()
+        conn_rw.commit()
         response = {'success': True, 'deleted': False, 'inserted':True}
     return response
 
 def is_favorite(cocktail,username):
-    cursor.execute('SELECT * FROM usersfavorite WHERE userid=%s and cocktailname=%s;', (username,cocktail))
-    if cursor.fetchone() != None:
+    curr_r.execute('SELECT * FROM usersfavorite WHERE userid=%s and cocktailname=%s;', (username,cocktail))
+    if curr_r.fetchone() != None:
         return True
     else:
         return False
@@ -215,8 +182,8 @@ def is_favorite(cocktail,username):
 def get_hash(data):
     username = data['username']
     logging.info(f"GETHASH request for {username} received")
-    cursor.execute('SELECT hash FROM usersinfo WHERE username=%s;', (username,))
-    row = cursor.fetchone()
+    curr_r.execute('SELECT hash FROM usersinfo WHERE username=%s;', (username,))
+    row = curr_r.fetchone()
     if row is None:
         response = {'success': False}
     else:
@@ -225,17 +192,8 @@ def get_hash(data):
 
 def getfavorites(data):
     username = data['username']
-    #cursor.execute('SELECT * FROM usersfavorite inner join usersinfo on usersfavorite.userid=usersinfo.username WHERE usersinfo.username=%s;', (username,))
-    cursor.execute('SELECT * FROM usersfavorite WHERE userid=%s;', (username,))
-    '''
-    row_headers=[x[0] for x in cursor.description]
-    rv = cursor.fetchall()
-    json_data=[]
-    for result in rv:
-        json_data.append(dict(zip(row_headers,result)))
-    return json.dumps(json_data)
-    '''
-    rv = cursor.fetchall()
+    curr_r.execute('SELECT * FROM usersfavorite WHERE userid=%s;', (username,))
+    rv = curr_r.fetchall()
     result=[]
     for entry in rv:
         result.append(entry[1])
@@ -243,6 +201,67 @@ def getfavorites(data):
     response = {'success':True, 'cocktails':result}
     return response
 
-channel.basic_qos(prefetch_count=1)
+
+logging.basicConfig(level=logging.INFO)
+
+wait_time = 1
+while True:
+    logging.info(f"Waiting {wait_time}s...")
+    time.sleep(wait_time)
+    if wait_time < 60:
+        wait_time = wait_time * 2
+    else:
+        wait_time = 60
+    try:
+# tag::updated_db[]
+
+        logging.info("Connecting to the read-write database...")
+        postgres_password = os.environ['DB_PASS']
+        postgres_user = os.environ['DB_USER']
+        conn_rw = psycopg2.connect(
+            host="db1,db2",
+            database="bartender",
+            user=postgres_user,
+            password=postgres_password,
+            target_session_attrs="read-write"
+        )
+
+        logging.info("Connecting to the read-only database...")
+        postgres_password = os.environ['DB_PASS']
+        postgres_user = os.environ['DB_USER']
+        conn_r = psycopg2.connect(
+            host="db2,db1",
+            database="bartender",
+            user=postgres_user,
+            password=postgres_password,
+            target_session_attrs="any"
+        )
+# end::updated_db[]
+
+        logging.info("Connecting to messaging service...")
+        credentials = pika.PlainCredentials(
+            os.environ['RABBITMQ_DEFAULT_USER'],
+            os.environ['RABBITMQ_DEFAULT_PASS']
+        )
+        connection = pika.BlockingConnection(
+            pika.ConnectionParameters(
+                host='messaging',
+                credentials=credentials
+            )
+        )
+
+        break
+    except psycopg2.OperationalError:
+        print(f"Unable to connect to database.")
+        continue
+    except pika.exceptions.AMQPConnectionError:
+        print("Unable to connect to messaging.")
+        continue
+
+curr_r = conn_r.cursor()
+curr_rw = conn_rw.cursor()
+channel = connection.channel()
+
+channel.queue_declare(queue='request',durable=True)
 channel.basic_consume(queue='request', auto_ack=True, on_message_callback=callback)
 channel.start_consuming()

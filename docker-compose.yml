@@ -11,21 +11,26 @@ services:
       - 5672:5672
   # end::messaging[]
 
-  db:
+  db1:
     build: ./db
     restart: always
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-    ports:
-      - 5432:5432
+      POSTGRES_REPLICA_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_NODES: "db1 db2"
     volumes:
       - db-data:/var/lib/postgresql/data
 
+  db2:
+    build: ./db
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_REPLICA_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_NODES: "db1 db2"
+
   adminer:
     image: adminer
-    depends_on:
-      - db
     restart: always
     ports:
       - 8080:8080
