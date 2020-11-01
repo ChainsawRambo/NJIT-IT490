@@ -28,6 +28,8 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_REPLICA_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_NODES: "db1 db2"
+    volumes:
+      - db-data2:/var/lib/postgresql/data
 
   adminer:
     image: adminer
@@ -61,3 +63,4 @@ services:
   # end::back_end[]
 volumes:
   db-data:
+  db-data2:
