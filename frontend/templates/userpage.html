@@ -3,83 +3,24 @@
 {% block title %}Search{% endblock %}
 
 {% block content %}
-<style>
-  body{
-    background-color: #F5F5F5
-    height: 100%
-  }
-  .cocktailimage{
-    width: 100px;
-    height: 100px;
-  }
-  .searcharea{
-    text-align: center
-  }
-  input{
-    width:70%
-    border: 1px solid grey;
-    border-radius: 5px;
-    box-sizing: border-box;
-    height:2em;
-  }
-  input:focus{
-    outline: 1px solid lightskyblue;
-  }
-  .btnbtn-primary1{
-    background-color:yellow;
-    color:black;
-    border: solid yellow;
-    border-radius: 4px;
-    height:2em;
-  }
-  .btnbtn-primary2{
-    background-color:black;
-    color:white;
-    border: solid yellow;
-    border-radius: 4px;
-    height:2em;
-  }
-  select,option{
-    border: 1px solid grey;
-    border-radius: 5px;
-    box-sizing: border-box;
-    height:2em;
-  }
-  select:focus, option:focus{
-    outline: 1px solid lightskyblue;
-  }
-
-
-  .searchresult1{
-    display: flex;
-    align-items: center;
-    flex-direction: column;
-  }
-
-  .searchresult1 > p{
-    text-align: center;
-    width: 70%
-  }
-
-  .searchresult2{
-    display:flex;
-    justify-content: center;
-  }
-
-  .searchresult2 > div{
-    margin: 40px;
-  }
-
-</style>
-
+<link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='styles/userpage.css') }}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <div class="searcharea">
   <form class="form-register" method="post">
-    <select name="dropdownvalue">
-      <option value="cocktail_name">Cocktail</option>
-      <option value="ingredient_name">Ingredient</option>
-    </select>
-    <input type="text" size="25" placeholder="Search by drink or type random" name="searchfield">
-    <button class="btn btn-primary" type="submit" name="btn1" val="search">Search</button>
+    <div>
+      <select name="dropdownvalue">
+        <option value="cocktail_name">Cocktail</option>
+        <option value="ingredient_name">Ingredient</option>
+      </select>
+      <div class="p-1 bg-light rounded rounded-pill shadow-sm mb-4 mw-40 ">
+        <div class="input-group">
+          <input type="text" name="searchfield" placeholder="Search by drink or type random" aria-describedby="button-addon1" class="form-control border-0 bg-light">
+          <div class="input-group-append">
+            <button name="btn1" val="search" type="submit" class="btn btn-link text-primary"><i class="fa fa-search"></i></button>
+          </div>
+        </div>
+      </div> 
+    </div>
   </form>
 </div>
 

@@ -7,7 +7,7 @@
     <title>{% block title %}{% endblock %}</title>
   </head>
   <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light mb-3">
             <a class="navbar-brand">
               <img src="{{url_for('static', filename='cocktail.png')}}" width="20" height="30" class="d-inline-block align-top" alt="cocktail-image">
               Cocktails
@@ -17,14 +17,14 @@
                     <span class="navbar-text">{{ session['email'] }}</span>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/logout">Logout</a>
-                </li>
-                <li class="nav-item">
                     <a class="nav-link" href="/userpage">Search</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/favorites">Favorites</a>
                 </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="/logout">Logout</a>
+              </li>
             </ul>
         </nav>
         <div class="container">
